@@ -2,7 +2,7 @@
 # This script is for Debian 12 with XFCE
 # Requirements: xdotool and wmctrl
 
-PROGRAM_NAME="chatgpt-electron."
+PROGRAM_NAME="chatgpt-electron.chatgpt-electron"
 
 OPENED_ID=$(wmctrl -lx | grep -i "$PROGRAM_NAME" | tail -1 | awk '{print $1}') # find window
 
