@@ -1,5 +1,7 @@
 # ChatGPT Electron
 
+![sample](sample.png)
+
 ## Requirements
 
 - xdotool `apt install xdotool`
@@ -38,12 +40,30 @@ You can directly run `out/chatgpt-electron-linux-x64/chatgpt-electron` or you ma
 
 6. Run your `./open_chatgpt.sh` and enjoy
 
-### Generate build
-```sh
-npm i
-npm run make
-```
-This *should* create `out/deb` and/or `out/rpm` folders so you can install the distribuable in your system
+### Panel shortcut in XFCE
+
+To make a shortcut to open a controlled window from your XFCE panel, you need to call your `./open_chatgpt.sh`.
+
+
+The goal of `./open_chatgpt.sh` is to find the Electron window then resize it at will. 
+
+It works with a `npm run package` output and I did NOT tested it with deb and rpm.
+
+1. Right click on your XFCE Panel > "Panel" > "Add new items..."
+
+2. Double-click on "Launcher":
+
+![step2](shortcut1.png)
+
+3. In the "Launcher" window, press the "+" button.
+
+4. In the "Edit Launcher" window, configure the Launcher so the command will open your `open_chatgpt.sh` from its path:
+
+![step4](shortcut2.png)
+
+5. Optional: Select an Icon, check "Use startup notification"
+
+6. Save, Close, Enjoy!
 
 ## Credits
 
