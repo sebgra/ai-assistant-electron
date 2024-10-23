@@ -1,3 +1,7 @@
+// main.js 
+// ChatGPT Electron 
+// by Andaroth 
+// https://github.com/Andaroth/chatgpt-electron
 const { app, BrowserWindow, session } = require('electron');
 
 function createWindow() {
@@ -13,24 +17,24 @@ function createWindow() {
     }
   });
 
-  // Capture les requêtes et modifie les headers pour simuler un navigateur classique
   win.webContents.session.webRequest.onBeforeSendHeaders((details, callback) => {
+    // ChatGPT might reject your session and loop on a captcha, if needed fix with UA:
     // details.requestHeaders['User-Agent'] = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36';
     callback({ cancel: false, requestHeaders: details.requestHeaders });
   });
 
-  // Sauvegarde les cookies de session pour éviter de passer le captcha à chaque fois
   session.defaultSession.cookies.on('changed', (event, cookie, cause, removed) => {
-    if (!removed) {
-      console.log('Cookie ajouté/activé : ', cookie);
-    }
+    // You can manage your sessions in this callback
+    if (!removed) console.log('Cookie ajouté/activé : ', cookie);
   });
 
   win.loadURL('https://chat.openai.com');
 }
 
+// Uncomment lines depending on your local setup:
 // app.disableHardwareAcceleration();
 // app.commandLine.appendSwitch('use-angle', 'gl');
 // app.commandLine.appendSwitch('use-gl', 'swiftshader');
 app.commandLine.appendSwitch('disable-software-rasterizer');
+
 app.whenReady().then(createWindow);
