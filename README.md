@@ -25,8 +25,10 @@ This will create `out/chatgpt-electron-linux-x64` folder which contains the exec
 
 2. Move this `chatgpt-electron-linux-x64` folder anywhere you like it
 
-3. Copy `run_debian/open_chatgpt.sh` next to the folder as a sibling
+3. Copy `run_debian/open_chatgpt.sh` anywhere you like it
 
-4. Edit line 25 on your new `open_chatgpt.sh` to place the window where you like it
+4. If needed, edit line 17 `./chatgpt-electron-linux-x64/chatgpt-electron` to target actual executable location
 
-4. Run your `./open_chatgpt.sh` and enjoy
+5. Edit line 25 on your new `open_chatgpt.sh` to place the window where you like it
+
+6. Run your `./open_chatgpt.sh` and enjoy

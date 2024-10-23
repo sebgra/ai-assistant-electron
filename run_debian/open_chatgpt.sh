@@ -2,7 +2,7 @@
 # This script is for Debian 12 with XFCE
 # Requirements: xdotool and wmctrl
 
-PROGRAM_NAME="chatgpt-electron"
+PROGRAM_NAME="chatgpt-electron."
 
 OPENED_ID=$(wmctrl -lx | grep -i "$PROGRAM_NAME" | tail -1 | awk '{print $1}') # find window
 
@@ -14,9 +14,9 @@ if [ -n "$OPENED_ID" ]; then # found
         xdotool windowminimize $OPENED_ID # hide
     fi
 else
-    /home/debian/.dep/chatgpt-electron-linux-x64/chatgpt-electron & # open new window
+    ./chatgpt-electron-linux-x64/chatgpt-electron & # open new window
     sleep 0.5
-    WINDOW_ID=$(wmctrl -l | grep "$PROGRAM_NAME" | tail -1 | cut -d' ' -f1) # target window
+    WINDOW_ID=$(wmctrl -lx | grep -i "$PROGRAM_NAME" | tail -1 | awk '{print $1}') # find window
     # decoration:
     wmctrl -ir $WINDOW_ID -b remove,fullscreen # prevent full size window
     wmctrl -ir $WINDOW_ID -b add,undecorated # remove titlebar
