@@ -32,9 +32,9 @@ You can directly run `out/chatgpt-electron-linux-x64/chatgpt-electron` or you ma
 
 2. Copy `run_debian/open_chatgpt.sh` anywhere you like it
 
-3. Edit line 17 `./chatgpt-electron-linux-x64/chatgpt-electron` to run executable from its path
+3. In your new `open_chatgpt.sh`, edit line 17 `./chatgpt-electron-linux-x64/chatgpt-electron` to run executable from its path
 
-5. Edit line 25 on your new `open_chatgpt.sh` to place the window where you like it
+5. Edit line 25 to place the window where you like it
 
 6. Run your `./open_chatgpt.sh` and enjoy
 
