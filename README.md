@@ -11,16 +11,16 @@
 Start project:
 
 ```sh
-$ npm i
-$ npm run dev
+npm i
+npm run dev
 ```
 
 ## Installation
 
 ### Generate package
 ```sh
-$ npm i
-$ npm run package
+npm i
+npm run package
 ```
 This will create `out/chatgpt-electron-linux-x64` folder which contains the executable file for Debian.
 
