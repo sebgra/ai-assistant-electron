@@ -37,3 +37,16 @@ You can directly run `/chatgpt-electron-linux-x64/chatgpt-electron` or you may w
 5. Edit line 25 on your new `open_chatgpt.sh` to place the window where you like it
 
 6. Run your `./open_chatgpt.sh` and enjoy
+
+### Generate build
+```sh
+$ npm i
+$ npm run make
+```
+This *should* create `out/deb` and/or `out/rpm` folders so you can install the distribuable in your system
+
+## Credits
+
+This was made by [Axel Andaroth (aka Pirate)](https://anda.ninja) for personal use with Debian 12 XFCE.
+Sharing is caring. I don't plan to maintain nor update this project. 
+Thanks for your support!
