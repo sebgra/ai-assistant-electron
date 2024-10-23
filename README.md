@@ -28,7 +28,7 @@ You can directly run `out/chatgpt-electron-linux-x64/chatgpt-electron` or you ma
 
 ### Use on debian
 
-1. Move this `out/chatgpt-electron-linux-x64` folder anywhere you like it
+1. Move the executable folder `out/chatgpt-electron-linux-x64` anywhere you like it
 
 2. Copy `run_debian/open_chatgpt.sh` anywhere you like it
 
