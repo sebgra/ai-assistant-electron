@@ -40,8 +40,8 @@ You can directly run `/chatgpt-electron-linux-x64/chatgpt-electron` or you may w
 
 ### Generate build
 ```sh
-$ npm i
-$ npm run make
+npm i
+npm run make
 ```
 This *should* create `out/deb` and/or `out/rpm` folders so you can install the distribuable in your system
 
