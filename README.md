@@ -4,9 +4,11 @@
 
 ## Requirements
 
+- [NodeJS](https://nodejs.org) v20 or +
+
+### Requirements for Debian
 - xdotool `apt install xdotool`
 - wmctrl `apt install wmctrl`
-- [NodeJS](https://nodejs.org) v20 or +
 
 ## Development
 
