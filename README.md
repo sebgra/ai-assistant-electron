@@ -14,7 +14,7 @@ Start project:
 
 ```sh
 npm i
-npm run dev
+npm run start
 ```
 
 ## Installation
@@ -24,9 +24,15 @@ npm run dev
 npm i
 npm run package
 ```
-This will create `out/chatgpt-electron-linux-x64` folder which contains the executable file for Debian.
+This will create a folder (ie: `out/chatgpt-electron-linux-x64`) which contains the executable file for Debian.
 
 You can directly run `out/chatgpt-electron-linux-x64/chatgpt-electron` or you may want to use it in a "widget":
+
+### Use on Windows
+
+1. Move the executable folder `out/chatgpt-electron-win32-x64` anywhere you like it
+
+2. Run `chatgpt-electron.exe` and enjoy!
 
 ### Use on debian
 
