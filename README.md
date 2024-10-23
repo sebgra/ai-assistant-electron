@@ -47,7 +47,7 @@ To make a shortcut to open a controlled window from your XFCE panel, you need to
 
 The goal of `./open_chatgpt.sh` is to find the Electron window then resize it at will. 
 
-It works with a `npm run package` output and I did NOT tested it with deb and rpm.
+It works with a `package` output and I did NOT tested it with deb and rpm.
 
 1. Right click on your XFCE Panel > "Panel" > "Add new items..."
 
@@ -61,7 +61,7 @@ It works with a `npm run package` output and I did NOT tested it with deb and rp
 
 ![step4](shortcut2.png)
 
-5. Optional: Select an Icon, check "Use startup notification"
+5. Optional: Name the shortcut and select an Icon (you can copy it from `GPT.svg`)
 
 6. Save, Close, Enjoy!
 
