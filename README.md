@@ -48,5 +48,7 @@ This *should* create `out/deb` and/or `out/rpm` folders so you can install the d
 ## Credits
 
 This was made by [Axel Andaroth (aka Pirate)](https://anda.ninja) for personal use with Debian 12 XFCE.
-Sharing is caring. I don't plan to maintain nor update this project. 
+
+Source is open because sharing is caring but I don't plan to spend time to maintain nor to update this project. 
+
 Thanks for your support!
