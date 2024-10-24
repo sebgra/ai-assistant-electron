@@ -12,7 +12,7 @@ Start project:
 
 ```sh
 npm i
-npm run start
+npm run dev
 ```
 
 ## Installation
