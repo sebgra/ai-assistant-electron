@@ -6,10 +6,6 @@
 
 - [NodeJS](https://nodejs.org) v20 or +
 
-### Requirements for Debian
-- xdotool `apt install xdotool`
-- wmctrl `apt install wmctrl`
-
 ## Development
 
 Start project:
@@ -46,20 +42,14 @@ You can directly run `out/chatgpt-electron-linux-x64/chatgpt-electron` or you ma
 
 This has been tested on Debian:
 
-1. Move the executable folder `out/chatgpt-electron-linux-x64` anywhere you like it
-
-2. Copy `run_debian/open_chatgpt.sh` anywhere you like it
-
-3. In your new `open_chatgpt.sh`, edit line 17 `./chatgpt-electron-linux-x64/chatgpt-electron` to run executable from its path
-
-5. Edit line 25 to place the window where you like it
-
-6. Run your `./open_chatgpt.sh` and enjoy
-
 ### Panel shortcut in XFCE
 
-To make a shortcut to open a controlled window from your XFCE panel, you need to call your `./open_chatgpt.sh`.
+#### Requirements
 
+- xdotool `apt install xdotool`
+- wmctrl `apt install wmctrl`
+
+To make a shortcut to open a controlled window from your XFCE panel, you need to call your `./open_chatgpt.sh`.
 
 The goal of `./open_chatgpt.sh` is to find the Electron window then resize it at will. 
 
