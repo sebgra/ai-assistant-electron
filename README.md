@@ -40,7 +40,9 @@ You can directly run `out/chatgpt-electron-linux-x64/chatgpt-electron` or you ma
 
 ### Use on Linux
 
-This has been tested on Debian:
+1. Move the executable folder `out/chatgpt-electron-linux-x64` anywhere you like it
+
+2. run `chatgpt-electron-linux-x64/open_chatgpt` and enjoy!
 
 ### Panel shortcut in XFCE
 
