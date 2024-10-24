@@ -36,7 +36,15 @@ You can directly run `out/chatgpt-electron-linux-x64/chatgpt-electron` or you ma
 
 2. Run `chatgpt-electron.exe` and enjoy!
 
-### Use on debian
+### Use on MacOS
+
+1. Move the executable folder `out/chatgpt-electron-darwin-arm64` anywhere you like it
+
+2. Run `chatgpt-electron.app` and enjoy!
+
+### Use on Linux
+
+This has been tested on Debian:
 
 1. Move the executable folder `out/chatgpt-electron-linux-x64` anywhere you like it
 
