@@ -11,11 +11,14 @@ const path = require('path');
 let win;
 
 function getSessions() {
-  const sessionFile = path.join(__dirname, `sessions.json`);
+const sessionFile = path.join(app.getPath('userData'), 'sessions.json');
   if (fs.existsSync(sessionFile)) {
     const sessions = JSON.parse(fs.readFileSync(sessionFile))
     return sessions || {}
-  } else return null
+  } else {
+    fs.writeFileSync(sessionFile, '{}', 'utf-8');
+    return getSessions();
+  }
 }
 
 function getSessionsNames() {
@@ -26,7 +29,7 @@ function removeSession(name, session) {
   const mutableSession = getSessions() || {};
   if (mutableSession[name]) {
     delete mutableSession[name];
-    const sessionFile = path.join(__dirname, `sessions.json`);
+    const sessionFile = path.join(app.getPath('userData'), 'sessions.json');
     fs.writeFileSync(sessionFile, JSON.stringify(mutableSession));
     setTimeout(() => win.reload(), 1000);
   }
@@ -39,7 +42,7 @@ function storeSession(name, session) {
     session.cookies.get({}).then((cookies) => {
       console.log('store, cookies', cookies);
       mutableSession[name] = { cookies };
-      const sessionFile = path.join(__dirname, `sessions.json`);
+      const sessionFile = path.join(app.getPath('userData'), 'sessions.json');
       fs.writeFileSync(sessionFile, JSON.stringify(mutableSession));
     });
   }
@@ -49,7 +52,7 @@ function loadSession(name, session) {
   console.log('loadSession')
   const existingSessions = getSessions();
   const cookies = existingSessions[name]?.cookies || [];
-  const sessionFile = path.join(__dirname, `sessions.json`);
+  const sessionFile = path.join(app.getPath('userData'), 'sessions.json');
   if (fs.existsSync(sessionFile)) {
     session.clearStorageData();
     cookies.forEach((cookie) => {
