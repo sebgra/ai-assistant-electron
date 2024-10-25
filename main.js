@@ -56,9 +56,8 @@ function toggleStreamer() {
 function fetchThemes() {
   const cssFiles = fs.readdirSync(userDataPath)
       .filter(file => path.extname(file) === '.css')
-      .map(label => { label });
-  console.log(cssFiles)
-  // return cssFiles || [];
+      .map(label => label);
+  return cssFiles || [];
 }
 
 function getSessions() {
@@ -192,7 +191,7 @@ function generateMenu() {{
     },
     {
       label: 'Theme',
-      submenu: [], // fetchThemes(),
+      submenu: fetchThemes().map(str => ({ label: str })) || [], // fetchThemes(),
     },
     {
       label: 'Options',
