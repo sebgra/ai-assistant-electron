@@ -7,11 +7,17 @@ Lets you switch from an account to another in 1 click:
 
 ![sample](session_demo.png)
 
-| Plateforme | Location of sessions files |
+## Features
+
+1. Session switcher to change account,
+2. Streamer mode to hide your name, mail and avatar
+3. Custom CSS themes
+
+| OS | Location of CSS files for themes |
 |---|---|
-| Windows	| C:\Users\\{username}\AppData\Roaming\chatgpt-electron |
-| macOS	| /Users/{username}/Library/Application Support/chatgpt-electron |
-| Linux	| /home/{username}/.config/chatgpt-electron |
+| Windows	| `C:\Users\{username}\AppData\Roaming\chatgpt-electron` |
+| macOS	| `/Users/{username}/Library/Application Support/chatgpt-electron` |
+| Linux	| `/home/{username}/.config/chatgpt-electron` |
 
 ## Requirements
 
