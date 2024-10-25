@@ -16,7 +16,7 @@ let win;
 let userSettings;
 
 const defaultSettings = {
-  theme:"default",
+  theme:"default.css",
   streamer:false
 };
 
@@ -41,7 +41,15 @@ function changeUserTheme(name, reload = false) {
   userSettings = mutateConfig; // assign
   const configFile = path.join(app.getPath('userData'), 'config.json');
   fs.writeFileSync(configFile, JSON.stringify(userSettings), 'utf-8'); // save
-  if (reload) win.reload()
+  const cssFile = path.join(userDataPath, name);
+  if (fs.existsSync(cssFile)) {
+    const cssContent = fs.readFileSync(cssFile, 'utf8');
+    win.webContents.insertCSS(cssContent);
+  } else {
+    fs.writeFileSync(cssFile, ""); // create empty theme
+    win.reload();
+  }
+  if (reload) win.reload();
 }
 
 function toggleStreamer() {
@@ -57,9 +65,8 @@ function fetchThemes() {
   const cssFiles = fs.readdirSync(userDataPath)
       .filter(file => path.extname(file) === '.css')
       .map(label => label);
-  return cssFiles || [];
+  return cssFiles || ["default.css"];
 }
-
 function getSessions() {
   if (fs.existsSync(sessionFile)) {
     const sessions = JSON.parse(fs.readFileSync(sessionFile))
@@ -191,7 +198,12 @@ function generateMenu() {{
     },
     {
       label: 'Theme',
-      submenu: fetchThemes().map(str => ({ label: str })) || [], // fetchThemes(),
+      submenu: fetchThemes().map(str => ({
+        label: str,
+        click() { 
+          changeUserTheme(str, true);
+        }
+      })),
     },
     {
       label: 'Options',
@@ -238,7 +250,8 @@ function createWindow() {
     loadUserPreferences();
     generateMenu();
 
-    console.log('streamer', userSettings.streamer)
+    changeUserTheme(userSettings.theme);
+
     if (userSettings.streamer) {
       // hide private data in UI:
       const hideCssRules = [
@@ -246,7 +259,7 @@ function createWindow() {
         "body div.composer-parent div.draggable button.rounded-full img { opacity: 0 !important; }", // avatar top right (img)
         "body nav.flex.h-full div.flex.w-full div.items-center.rounded-full { background-color: rgba(255,255,255,.5); }", // avatar in mobile menu (container)
         "body nav.flex.h-full button img { opacity: 0 !important; }", // avatar in mobile menu (img)
-        "body nav.flex.h-full div.flex.w-full button div.relative { color: transparent !important; background: rgba(255,255,255,.5); }", // name in mobile menu
+        "body nav.flex.h-full div.flex.w-full button div.relative { opacity: 0 !important; }", // name in mobile menu
         "body nav.flex.h-full div.popover.absolute nav div.text-token-text-secondary { display: none; }", // email in mobile menu
       ];
       for (let cssRule of hideCssRules) win.webContents.insertCSS(cssRule);
