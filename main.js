@@ -2,6 +2,10 @@
 // ChatGPT Electron 
 // by Andaroth 
 // https://github.com/Andaroth/chatgpt-electron
+
+const __INITIAL_URL__ = 'https://chat.openai.com';
+
+
 const { Menu, app, BrowserWindow, session } = require('electron');
 const prompt = require('electron-prompt');
 
@@ -9,9 +13,55 @@ const fs = require('fs');
 const path = require('path');
 
 let win;
+let userSettings;
+
+const defaultSettings = {
+  theme:"default",
+  streamer:false
+};
+
+const userDataPath = app.getPath('userData');
+const configPath = path.join(userDataPath, 'config.json');
+const sessionFile = path.join(userDataPath, 'sessions.json');
+
+function loadUserPreferences() {
+  if (fs.existsSync(configPath)) {
+      const configFile = fs.readFileSync(configPath, 'utf-8');
+      userSettings = JSON.parse(configFile);
+      return userSettings;
+  } else { // create config file if it does not exist
+    fs.writeFileSync(configPath, JSON.stringify(defaultSettings)); // create settings
+    return loadUserPreferences()
+  }
+}
+
+function changeUserTheme(name, reload = false) {
+  let currentSettings = Object.assign({}, userSettings || loadUserPreferences()); // mock
+  const mutateConfig = Object.assign(currentSettings, { theme: name }); // mutate
+  userSettings = mutateConfig; // assign
+  const configFile = path.join(app.getPath('userData'), 'config.json');
+  fs.writeFileSync(configFile, JSON.stringify(userSettings), 'utf-8'); // save
+  if (reload) win.reload()
+}
+
+function toggleStreamer() {
+  let currentSettings = Object.assign({}, userSettings || loadUserPreferences()); // mock
+  const mutateConfig = Object.assign(currentSettings, { streamer: !currentSettings.streamer }); // mutate
+  userSettings = mutateConfig; // assign
+  const configFile = path.join(app.getPath('userData'), 'config.json');
+  fs.writeFileSync(configFile, JSON.stringify(userSettings), 'utf-8'); // save
+  win.reload()
+}
+
+function fetchThemes() {
+  const cssFiles = fs.readdirSync(userDataPath)
+      .filter(file => path.extname(file) === '.css')
+      .map(label => { label });
+  console.log(cssFiles)
+  // return cssFiles || [];
+}
 
 function getSessions() {
-const sessionFile = path.join(app.getPath('userData'), 'sessions.json');
   if (fs.existsSync(sessionFile)) {
     const sessions = JSON.parse(fs.readFileSync(sessionFile))
     return sessions || {}
@@ -85,7 +135,6 @@ function loadSession(name, session) {
 }
 
 function generateMenu() {{
-  console.log('generateMenu')
   const sessionMenuTemplate = [
     {
       label: 'Sessions',
@@ -140,6 +189,23 @@ function generateMenu() {{
         }
       }
     ]
+    },
+    {
+      label: 'Theme',
+      submenu: [], // fetchThemes(),
+    },
+    {
+      label: 'Options',
+      submenu: [
+        {
+          label: "Streamer mode",
+          type: "checkbox",
+          checked: loadUserPreferences().streamer,
+          click() {
+            toggleStreamer()
+          }
+        }
+      ]
     }
   ]
   
@@ -155,10 +221,8 @@ function createWindow() {
     frame: true,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false,
       enableRemoteModule: true,
       webviewTag: true,
-      webSecurity: false,
       session: require('electron').session.defaultSession
     }
   });
@@ -167,10 +231,28 @@ function createWindow() {
     callback({ cancel: false, requestHeaders: details.requestHeaders });
   });
 
-  win.loadFile(path.join(__dirname, 'index.html'));
+  // win.loadFile(path.join(__dirname, 'index.html'));
+  win.loadURL(__INITIAL_URL__);
   generateMenu();
 
-  win.webContents.on('did-finish-load', () => generateMenu());
+  win.webContents.on('did-finish-load', (e) => {
+    loadUserPreferences();
+    generateMenu();
+
+    console.log('streamer', userSettings.streamer)
+    if (userSettings.streamer) {
+      // hide private data in UI:
+      const hideCssRules = [
+        "body div.composer-parent div.draggable button.rounded-full { background: rgba(255,255,255,.5); color: transparent !important; }", // avatar top right (container)
+        "body div.composer-parent div.draggable button.rounded-full img { opacity: 0 !important; }", // avatar top right (img)
+        "body nav.flex.h-full div.flex.w-full div.items-center.rounded-full { background-color: rgba(255,255,255,.5); }", // avatar in mobile menu (container)
+        "body nav.flex.h-full button img { opacity: 0 !important; }", // avatar in mobile menu (img)
+        "body nav.flex.h-full div.flex.w-full button div.relative { color: transparent !important; background: rgba(255,255,255,.5); }", // name in mobile menu
+        "body nav.flex.h-full div.popover.absolute nav div.text-token-text-secondary { display: none; }", // email in mobile menu
+      ];
+      for (let cssRule of hideCssRules) win.webContents.insertCSS(cssRule);
+    }
+  });
 }
 
 app.commandLine.appendSwitch('disable-software-rasterizer');
