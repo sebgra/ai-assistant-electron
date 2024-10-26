@@ -168,119 +168,117 @@ function loadSession(name, session) {
 }
 
 function generateMenu() {
-  {
-    const sessionMenuTemplate = [
-      ...(isMac ? [{
-        label: app.name,
-        submenu: [
-          { role: 'quit' }  // Cmd + Q pour quitter
-        ]
-      }] : []),
-      // Edition Menu
-      ...(isMac ? [{
-        label: 'Edit',
-        submenu: [
-          { role: 'undo' },
-          { role: 'redo' },
-          { type: 'separator' },
-          { role: 'cut' },
-          { role: 'copy' },
-          { role: 'paste' },
-          { role: 'selectAll' }
-        ]
-      }] : []),
+  const sessionMenuTemplate = [
+    ...(isMac ? [{
+      label: app.name,
+      submenu: [
+        { role: 'quit' }  // Cmd + Q pour quitter
+      ]
+    }] : []),
+    // Edition Menu
+    ...(isMac ? [{
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'selectAll' }
+      ]
+    }] : []),
+    {
+      label: "Change AI",
+      submenu: availableAIs.map(({ label, url }) => ({
+        label,
+        type: "checkbox",
+        checked: (userSettings.assistant || defaultSettings.assistant) === label,
+        click() {
+          changeAssistant(label,url,true);
+        }
+      })),
+    },
+    {
+      label: 'Sessions',
+      submenu: [...getSessionsNames().map((name) => ({
+        label: name,
+        click() {
+          loadSession(name, session.defaultSession);
+        }
+      })),
       {
-        label: "Change AI",
-        submenu: availableAIs.map(({ label, url }) => ({
-          label,
-          type: "checkbox",
-          checked: (userSettings.assistant || defaultSettings.assistant) === label,
-          click() {
-            changeAssistant(label,url,true);
-          }
-        })),
+        type: "separator"
       },
       {
-        label: 'Sessions',
-        submenu: [...getSessionsNames().map((name) => ({
-          label: name,
+        label: "Save Current Session",
+        click: async () => {
+          const ask = () => {
+            prompt({
+              title: 'Saving Current Session',
+              label: 'Please chose a name:',
+              inputAttrs: {
+                type: 'text'
+              },
+              type: 'input'
+            }).then((text) => {
+              if (text === "") ask();
+              else if (text !== null) {
+                storeSession(text, session.defaultSession)
+                setTimeout(() => loadSession(text, session.defaultSession))
+              }
+            }).catch(console.error);
+          }
+          ask()
+        }
+      },
+      {
+        label: "Delete A Session",
+        click: async () => {
+          const ask = () => {
+            prompt({
+              title: 'Delete A Session',
+              label: 'Enter the EXACT NAME to remove:',
+              inputAttrs: {
+                type: 'text'
+              },
+              type: 'input'
+            }).then((text) => {
+              if (text === "") ask();
+              else if (text !== null) removeSession(text, session.defaultSession)
+            }).catch(console.error);
+          }
+          ask()
+        }
+      }
+      ]
+    },
+    {
+      label: 'Theme',
+      submenu: fetchThemes().map(str => ({
+        label: str,
+        click() {
+          changeUserTheme(str, true);
+        }
+      })),
+    },
+    {
+      label: 'Options',
+      submenu: [
+        {
+          label: "Streamer mode",
+          type: "checkbox",
+          checked: loadUserPreferences().streamer,
           click() {
-            loadSession(name, session.defaultSession);
-          }
-        })),
-        {
-          type: "separator"
-        },
-        {
-          label: "Save Current Session",
-          click: async () => {
-            const ask = () => {
-              prompt({
-                title: 'Saving Current Session',
-                label: 'Please chose a name:',
-                inputAttrs: {
-                  type: 'text'
-                },
-                type: 'input'
-              }).then((text) => {
-                if (text === "") ask();
-                else if (text !== null) {
-                  storeSession(text, session.defaultSession)
-                  setTimeout(() => loadSession(text, session.defaultSession))
-                }
-              }).catch(console.error);
-            }
-            ask()
-          }
-        },
-        {
-          label: "Delete A Session",
-          click: async () => {
-            const ask = () => {
-              prompt({
-                title: 'Delete A Session',
-                label: 'Enter the EXACT NAME to remove:',
-                inputAttrs: {
-                  type: 'text'
-                },
-                type: 'input'
-              }).then((text) => {
-                if (text === "") ask();
-                else if (text !== null) removeSession(text, session.defaultSession)
-              }).catch(console.error);
-            }
-            ask()
+            toggleStreamer()
           }
         }
-        ]
-      },
-      {
-        label: 'Theme',
-        submenu: fetchThemes().map(str => ({
-          label: str,
-          click() {
-            changeUserTheme(str, true);
-          }
-        })),
-      },
-      {
-        label: 'Options',
-        submenu: [
-          {
-            label: "Streamer mode",
-            type: "checkbox",
-            checked: loadUserPreferences().streamer,
-            click() {
-              toggleStreamer()
-            }
-          }
-        ]
-      }
-    ]
+      ]
+    }
+  ]
 
-    const menu = Menu.buildFromTemplate(sessionMenuTemplate);
-    Menu.setApplicationMenu(menu);
-  }
+  const menu = Menu.buildFromTemplate(sessionMenuTemplate);
+  Menu.setApplicationMenu(menu);
 }
 
 function createWindow() {
