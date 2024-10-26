@@ -6,7 +6,8 @@
 
 1. #### Session manager to change account easily,
 2. #### Streamer mode to hide your name, mail and avatar
-3. #### Custom CSS themes
+3. #### Change assistant (GPT, Copilot, Mistral, more soon)
+4. #### Custom CSS themes
 
 | OS | Location of folder for CSS themes |
 |---|---|
@@ -14,18 +15,15 @@
 | macOS	| `/Users/{username}/Library/Application Support/chatgpt-electron` |
 | Linux	| `/home/{username}/.config/chatgpt-electron` |
 
+![sample](multi_ai.png)
+
+![sample](multi_sessions.png)
+
+![sample](themes.png)
+
 ## Requirements
 
 - [NodeJS](https://nodejs.org) v20 or +
-
-## Development
-
-Start project:
-
-```sh
-npm i
-npm run dev
-```
 
 ## Installation
 

@@ -3,8 +3,7 @@
 // by Andaroth 
 // https://github.com/Andaroth/chatgpt-electron
 
-const __INITIAL_URL__ = 'https://chat.openai.com';
-
+let iaURL = 'https://chat.openai.com';
 
 const { Menu, app, BrowserWindow, session } = require('electron');
 const prompt = require('electron-prompt');
@@ -25,6 +24,13 @@ const defaultSettings = {
 const userDataPath = app.getPath('userData');
 const configPath = path.join(userDataPath, 'config.json');
 const sessionFile = path.join(userDataPath, 'sessions.json');
+
+function changeIA(url) {
+  console.log('changeIA', url)
+  iaURL = url;
+  win.webContents.session.clearStorageData({ storages: ['cookies'] });
+  win.loadURL(iaURL);
+}
 
 function loadUserPreferences() {
   if (fs.existsSync(configPath)) {
@@ -165,6 +171,29 @@ function generateMenu() {
         ]
       }] : []),
       {
+        label: "Change IA",
+        submenu: [
+          {
+            label: "ChatGPT",
+            click() { 
+              changeIA('https://chat.openai.com')
+            }
+          },
+          {
+            label: "Copilot",
+            click() {
+              changeIA('https://copilot.microsoft.com/')
+            }
+          },
+          {
+            label: "MistralAI",
+            click() { 
+              changeIA('https://chat.mistral.ai/chat')
+            }
+          },
+        ]
+      },
+      {
         label: 'Sessions',
         submenu: [...getSessionsNames().map((name) => ({
           label: name,
@@ -266,7 +295,7 @@ function createWindow() {
   });
 
   // win.loadFile(path.join(__dirname, 'index.html'));
-  win.loadURL(__INITIAL_URL__);
+  win.loadURL(iaURL);
   generateMenu();
 
   win.webContents.on('did-finish-load', (e) => {
@@ -278,12 +307,20 @@ function createWindow() {
     if (userSettings.streamer) {
       // hide private data in UI:
       const hideCssRules = [
+        // ChatGPT
         "body div.composer-parent div.draggable button.rounded-full { background: rgba(255,255,255,.5); color: transparent !important; }", // avatar top right (container)
         "body div.composer-parent div.draggable button.rounded-full img { opacity: 0 !important; }", // avatar top right (img)
         "body nav.flex.h-full div.flex.w-full div.items-center.rounded-full { background-color: rgba(255,255,255,.5); }", // avatar in mobile menu (container)
         "body nav.flex.h-full button img { opacity: 0 !important; }", // avatar in mobile menu (img)
         "body nav.flex.h-full div.flex.w-full button div.relative { opacity: 0 !important; }", // name in mobile menu
         "body nav.flex.h-full div.popover.absolute nav div.text-token-text-secondary { display: none; }", // email in mobile menu
+        // MistralAI
+        "body div.relative.h-full button.inline-flex.items-center.whitespace-nowrap.text-sm * { color: transparent !important; }", // account
+        "body div.bg-popover div.flex.flex-col.space-y-1 p { color: transparent !important; }", // mail
+        "body div.bg-popover div.px-2.text-xs.font-semibold { color: transparent !important; }", // name
+        // Copilot
+        "body div.absolute.end-6.top-6 button img { opacity: 0 !important; }", // avatar
+        "body div.absolute.end-6.top-6 button p { color: transparent !important; }" // name & mail
       ];
       for (let cssRule of hideCssRules) win.webContents.insertCSS(cssRule);
     }
