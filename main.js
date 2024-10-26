@@ -1,7 +1,7 @@
 // main.js 
 // ChatGPT Electron 
 // by Andaroth 
-// https://github.com/Andaroth/chatgpt-electron
+// https://github.com/Andaroth/ai-assistant-electron
 
 const availableAIs = [
   {
