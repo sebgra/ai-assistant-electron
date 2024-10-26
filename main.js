@@ -291,7 +291,7 @@ function createWindow() {
       nodeIntegration: true,
       enableRemoteModule: true,
       webviewTag: true,
-      session: require('electron').session.defaultSession
+      session: session.defaultSession
     }
   });
 
