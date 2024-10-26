@@ -2,6 +2,10 @@
 // ChatGPT Electron 
 // by Andaroth 
 // https://github.com/Andaroth/chatgpt-electron
+
+const __INITIAL_URL__ = 'https://chat.openai.com';
+
+
 const { Menu, app, BrowserWindow, session } = require('electron');
 const prompt = require('electron-prompt');
 
@@ -9,9 +13,63 @@ const fs = require('fs');
 const path = require('path');
 
 let win;
+let userSettings;
 
+const isMac = process.platform === "darwin";
+
+const defaultSettings = {
+  theme: "default.css",
+  streamer: false
+};
+
+const userDataPath = app.getPath('userData');
+const configPath = path.join(userDataPath, 'config.json');
+const sessionFile = path.join(userDataPath, 'sessions.json');
+
+function loadUserPreferences() {
+  if (fs.existsSync(configPath)) {
+    const configFile = fs.readFileSync(configPath, 'utf-8');
+    userSettings = JSON.parse(configFile);
+    return userSettings;
+  } else { // create config file if it does not exist
+    fs.writeFileSync(configPath, JSON.stringify(defaultSettings)); // create settings
+    return loadUserPreferences()
+  }
+}
+
+function changeUserTheme(name, reload = false) {
+  let currentSettings = Object.assign({}, userSettings || loadUserPreferences()); // mock
+  const mutateConfig = Object.assign(currentSettings, { theme: name }); // mutate
+  userSettings = mutateConfig; // assign
+  const configFile = path.join(app.getPath('userData'), 'config.json');
+  fs.writeFileSync(configFile, JSON.stringify(userSettings), 'utf-8'); // save
+  const cssFile = path.join(userDataPath, name);
+  if (fs.existsSync(cssFile)) {
+    const cssContent = fs.readFileSync(cssFile, 'utf8');
+    win.webContents.insertCSS(cssContent);
+  } else {
+    fs.writeFileSync(cssFile, ""); // create empty theme
+    win.reload();
+  }
+  if (reload) win.reload();
+}
+
+function toggleStreamer() {
+  let currentSettings = Object.assign({}, userSettings || loadUserPreferences()); // mock
+  const mutateConfig = Object.assign(currentSettings, { streamer: !currentSettings.streamer }); // mutate
+  userSettings = mutateConfig; // assign
+  const configFile = path.join(app.getPath('userData'), 'config.json');
+  fs.writeFileSync(configFile, JSON.stringify(userSettings), 'utf-8'); // save
+  win.reload()
+}
+
+function fetchThemes() {
+  const cssFiles = fs.readdirSync(userDataPath)
+    .filter(file => path.extname(file) === '.css')
+    .map(label => label);
+  return cssFiles || ["default.css"];
+}
 function getSessions() {
-const sessionFile = path.join(app.getPath('userData'), 'sessions.json');
   if (fs.existsSync(sessionFile)) {
     const sessions = JSON.parse(fs.readFileSync(sessionFile))
     return sessions || {}
@@ -64,7 +122,7 @@ function loadSession(name, session) {
         cookie.path = '/';     // set root path
         delete cookie.domain;  // delete, refer to url
         delete cookie.sameSite; // allow cookies from third auth
-    }
+      }
       session.cookies.set({
         url,
         name: cookie.name,
@@ -84,68 +142,110 @@ function loadSession(name, session) {
   }
 }
 
-function generateMenu() {{
-  console.log('generateMenu')
-  const sessionMenuTemplate = [
-    {
-      label: 'Sessions',
-      submenu: [...getSessionsNames().map((name) => ({
-        label: name,
-        click() {
-          loadSession(name, session.defaultSession);
-        }
-      })), 
+function generateMenu() {
+  {
+    const sessionMenuTemplate = [
+      ...(isMac ? [{
+        label: app.name,
+        submenu: [
+          { role: 'quit' }  // Cmd + Q pour quitter
+        ]
+      }] : []),
+      // Edition Menu
+      ...(isMac ? [{
+        label: 'Edit',
+        submenu: [
+          { role: 'undo' },
+          { role: 'redo' },
+          { type: 'separator' },
+          { role: 'cut' },
+          { role: 'copy' },
+          { role: 'paste' },
+          { role: 'selectAll' }
+        ]
+      }] : []),
       {
-        type: "separator"
-      },
-      {
-        label: "Save Current Session",
-        click: async () => {
-          const ask = () => {
-            prompt({
-              title: 'Saving Current Session',
-              label: 'Please chose a name:',
-              inputAttrs: {
+        label: 'Sessions',
+        submenu: [...getSessionsNames().map((name) => ({
+          label: name,
+          click() {
+            loadSession(name, session.defaultSession);
+          }
+        })),
+        {
+          type: "separator"
+        },
+        {
+          label: "Save Current Session",
+          click: async () => {
+            const ask = () => {
+              prompt({
+                title: 'Saving Current Session',
+                label: 'Please chose a name:',
+                inputAttrs: {
                   type: 'text'
-              },
-              type: 'input'
-            }).then((text) => {
+                },
+                type: 'input'
+              }).then((text) => {
                 if (text === "") ask();
                 else if (text !== null) {
                   storeSession(text, session.defaultSession)
                   setTimeout(() => loadSession(text, session.defaultSession))
                 }
-            }).catch(console.error);
+              }).catch(console.error);
+            }
+            ask()
           }
-          ask()
-        }
-      },
-      {
-        label: "Delete A Session",
-        click: async () => {
-          const ask = () => {
-            prompt({
-              title: 'Delete A Session',
-              label: 'Enter the EXACT NAME to remove:',
-              inputAttrs: {
+        },
+        {
+          label: "Delete A Session",
+          click: async () => {
+            const ask = () => {
+              prompt({
+                title: 'Delete A Session',
+                label: 'Enter the EXACT NAME to remove:',
+                inputAttrs: {
                   type: 'text'
-              },
-              type: 'input'
-            }).then((text) => {
+                },
+                type: 'input'
+              }).then((text) => {
                 if (text === "") ask();
                 else if (text !== null) removeSession(text, session.defaultSession)
-            }).catch(console.error);
+              }).catch(console.error);
+            }
+            ask()
           }
-          ask()
         }
+        ]
+      },
+      {
+        label: 'Theme',
+        submenu: fetchThemes().map(str => ({
+          label: str,
+          click() {
+            changeUserTheme(str, true);
+          }
+        })),
+      },
+      {
+        label: 'Options',
+        submenu: [
+          {
+            label: "Streamer mode",
+            type: "checkbox",
+            checked: loadUserPreferences().streamer,
+            click() {
+              toggleStreamer()
+            }
+          }
+        ]
       }
     ]
-    }
-  ]
-  
-  const menu = Menu.buildFromTemplate(sessionMenuTemplate);
-  Menu.setApplicationMenu(menu);
-}}
+
+    const menu = Menu.buildFromTemplate(sessionMenuTemplate);
+    Menu.setApplicationMenu(menu);
+  }
+}
 
 function createWindow() {
   win = new BrowserWindow({
@@ -155,10 +255,8 @@ function createWindow() {
     frame: true,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false,
       enableRemoteModule: true,
       webviewTag: true,
-      webSecurity: false,
       session: require('electron').session.defaultSession
     }
   });
@@ -167,12 +265,38 @@ function createWindow() {
     callback({ cancel: false, requestHeaders: details.requestHeaders });
   });
 
-  win.loadFile(path.join(__dirname, 'index.html'));
+  // win.loadFile(path.join(__dirname, 'index.html'));
+  win.loadURL(__INITIAL_URL__);
   generateMenu();
 
-  win.webContents.on('did-finish-load', () => generateMenu());
+  win.webContents.on('did-finish-load', (e) => {
+    loadUserPreferences();
+    generateMenu();
+
+    changeUserTheme(userSettings.theme);
+
+    if (userSettings.streamer) {
+      // hide private data in UI:
+      const hideCssRules = [
+        "body div.composer-parent div.draggable button.rounded-full { background: rgba(255,255,255,.5); color: transparent !important; }", // avatar top right (container)
+        "body div.composer-parent div.draggable button.rounded-full img { opacity: 0 !important; }", // avatar top right (img)
+        "body nav.flex.h-full div.flex.w-full div.items-center.rounded-full { background-color: rgba(255,255,255,.5); }", // avatar in mobile menu (container)
+        "body nav.flex.h-full button img { opacity: 0 !important; }", // avatar in mobile menu (img)
+        "body nav.flex.h-full div.flex.w-full button div.relative { opacity: 0 !important; }", // name in mobile menu
+        "body nav.flex.h-full div.popover.absolute nav div.text-token-text-secondary { display: none; }", // email in mobile menu
+      ];
+      for (let cssRule of hideCssRules) win.webContents.insertCSS(cssRule);
+    }
+  });
+
+  win.on('closed', () => { win = null })
 }
 
 app.commandLine.appendSwitch('disable-software-rasterizer');
 
 app.whenReady().then(createWindow);
+
+app.on('activate', () => { if (win === null) createWindow() })
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit()
+})
