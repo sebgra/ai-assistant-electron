@@ -15,18 +15,15 @@
 | macOS	| `/Users/{username}/Library/Application Support/chatgpt-electron` |
 | Linux	| `/home/{username}/.config/chatgpt-electron` |
 
+![sample](multi_ai.png)
+
+![sample](multi_sessions.png)
+
+![sample](themes.png)
+
 ## Requirements
 
 - [NodeJS](https://nodejs.org) v20 or +
-
-## Development
-
-Start project:
-
-```sh
-npm i
-npm run dev
-```
 
 ## Installation
 
