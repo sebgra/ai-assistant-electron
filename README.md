@@ -1,4 +1,4 @@
-# ChatGPT Electron
+# AI Assistant Electron
 
 ![sample](sample.png)
 
