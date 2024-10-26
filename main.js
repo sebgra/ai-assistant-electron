@@ -327,6 +327,7 @@ function createWindow() {
         "body div.relative.h-full button.inline-flex.items-center.whitespace-nowrap.text-sm * { color: transparent !important; }", // account
         "body div.bg-popover div.flex.flex-col.space-y-1 p { color: transparent !important; }", // mail
         "body div.bg-popover div.px-2.text-xs.font-semibold { color: transparent !important; }", // name
+        "body div.group.relative.w-full span.relative.flex { opacity: 0 !important; }", // user avatar
         // Copilot
         "body div.absolute.end-6.top-6 button img { opacity: 0 !important; }", // avatar
         "body div.absolute.end-6.top-6 button p { color: transparent !important; }" // name & mail
