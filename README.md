@@ -2,11 +2,6 @@
 
 ![sample](sample.png)
 
-
-Lets you switch from an account to another in 1 click:
-
-![sample](session_demo.png)
-
 ## Features
 
 1. Session switcher to change account,
