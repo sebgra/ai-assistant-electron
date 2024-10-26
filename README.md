@@ -4,11 +4,11 @@
 
 ## Features
 
-1. Session switcher to change account,
-2. Streamer mode to hide your name, mail and avatar
-3. Custom CSS themes
+1. #### Session manager to change account easily,
+2. #### Streamer mode to hide your name, mail and avatar
+3. #### Custom CSS themes
 
-| OS | Location of CSS files for themes |
+| OS | Location of folder for CSS themes |
 |---|---|
 | Windows	| `C:\Users\{username}\AppData\Roaming\chatgpt-electron` |
 | macOS	| `/Users/{username}/Library/Application Support/chatgpt-electron` |
