@@ -3,7 +3,20 @@
 // by Andaroth 
 // https://github.com/Andaroth/chatgpt-electron
 
-let iaURL = 'https://chat.openai.com';
+const availableAIs = [
+  {
+    label: "ChatGPT",
+    url: 'https://chat.openai.com'
+  },
+  {
+    label: "Copilot",
+    url: 'https://copilot.microsoft.com/'
+  },
+  {
+    label: "MistralAI",
+    url: 'https://chat.mistral.ai/chat'
+  },
+]
 
 const { Menu, app, BrowserWindow, session } = require('electron');
 const prompt = require('electron-prompt');
@@ -18,18 +31,24 @@ const isMac = process.platform === "darwin";
 
 const defaultSettings = {
   theme: "default.css",
-  streamer: false
+  streamer: false,
+  assistant: "ChatGPT",
 };
 
 const userDataPath = app.getPath('userData');
 const configPath = path.join(userDataPath, 'config.json');
 const sessionFile = path.join(userDataPath, 'sessions.json');
 
-function changeIA(url) {
-  console.log('changeIA', url)
-  iaURL = url;
+function changeAssistant(label,url, save = false) {
+  console.log('changeAssistant', label, url)
   win.webContents.session.clearStorageData({ storages: ['cookies'] });
-  win.loadURL(iaURL);
+  win.loadURL(url);
+  if (save) {
+    let currentSettings = Object.assign({}, userSettings || loadUserPreferences()); // mock
+    const mutateConfig = Object.assign(currentSettings, { assistant: label }); // mutate
+    userSettings = mutateConfig; // assign
+    fs.writeFileSync(configPath, JSON.stringify(userSettings), 'utf-8'); // save
+  }
 }
 
 function loadUserPreferences() {
@@ -171,27 +190,15 @@ function generateMenu() {
         ]
       }] : []),
       {
-        label: "Change IA",
-        submenu: [
-          {
-            label: "ChatGPT",
-            click() { 
-              changeIA('https://chat.openai.com')
-            }
-          },
-          {
-            label: "Copilot",
-            click() {
-              changeIA('https://copilot.microsoft.com/')
-            }
-          },
-          {
-            label: "MistralAI",
-            click() { 
-              changeIA('https://chat.mistral.ai/chat')
-            }
-          },
-        ]
+        label: "Change AI",
+        submenu: availableAIs.map(({ label, url }) => ({
+          label,
+          type: "checkbox",
+          checked: (userSettings.assistant || defaultSettings.assistant) === label,
+          click() {
+            changeAssistant(label,url,true);
+          }
+        })),
       },
       {
         label: 'Sessions',
@@ -294,12 +301,16 @@ function createWindow() {
     callback({ cancel: false, requestHeaders: details.requestHeaders });
   });
 
-  // win.loadFile(path.join(__dirname, 'index.html'));
-  win.loadURL(iaURL);
+  loadUserPreferences();
   generateMenu();
-
+  const isValidLabel = (label) => availableAIs.find(ai => ai.label === label)
+  const label = isValidLabel(userSettings.assistant)
+    ? userSettings.assistant
+    : defaultSettings.assistant
+  const { url } = availableAIs.find(ai => ai.label === label);
+  changeAssistant(label, url);
+  
   win.webContents.on('did-finish-load', (e) => {
-    loadUserPreferences();
     generateMenu();
 
     changeUserTheme(userSettings.theme);
