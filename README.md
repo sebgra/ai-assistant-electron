@@ -32,7 +32,7 @@
 npm i
 npm run package
 ```
-This will create a folder (ie: `out/chatgpt-electron-linux-x64`) which contains the executable file for Debian.
+This will create a folder (ie: `out/chatgpt-electron-linux-x64`) which contains the executable file for your system.
 
 You can directly run `out/chatgpt-electron-linux-x64/chatgpt-electron` or you may want to use it in a "widget":
 
