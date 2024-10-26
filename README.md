@@ -6,7 +6,8 @@
 
 1. #### Session manager to change account easily,
 2. #### Streamer mode to hide your name, mail and avatar
-3. #### Custom CSS themes
+3. #### Change assistant (GPT, Copilot, Mistral, more soon)
+4. #### Custom CSS themes
 
 | OS | Location of folder for CSS themes |
 |---|---|
