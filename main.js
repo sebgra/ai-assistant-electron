@@ -40,7 +40,7 @@ const configPath = path.join(userDataPath, 'config.json');
 const sessionFile = path.join(userDataPath, 'sessions.json');
 
 function changeAssistant(label,url, save = false) {
-  console.log('changeAssistant', label, url)
+  // console.log('changeAssistant', label, url)
   win.webContents.session.clearStorageData({ storages: ['cookies'] });
   win.loadURL(url);
   if (save) {
@@ -119,11 +119,11 @@ function removeSession(name, session) {
 }
 
 function storeSession(name, session) {
-  console.log('storeSession')
+  // console.log('storeSession')
   if (Object.keys(session).length) {
     const mutableSession = getSessions() || {};
     session.cookies.get({}).then((cookies) => {
-      console.log('store, cookies', cookies);
+      // console.log('store, cookies', cookies);
       mutableSession[name] = { cookies };
       const sessionFile = path.join(app.getPath('userData'), 'sessions.json');
       fs.writeFileSync(sessionFile, JSON.stringify(mutableSession));
@@ -132,14 +132,14 @@ function storeSession(name, session) {
 }
 
 function loadSession(name, session) {
-  console.log('loadSession')
+  // console.log('loadSession')
   const existingSessions = getSessions();
   const cookies = existingSessions[name]?.cookies || [];
   const sessionFile = path.join(app.getPath('userData'), 'sessions.json');
   if (fs.existsSync(sessionFile)) {
     session.clearStorageData();
     cookies.forEach((cookie) => {
-      console.log('load, cookie', cookie);
+      // console.log('load, cookie', cookie);
       const url = `https://${cookie.domain.replace(/^\./, '')}`;
       if (cookie.name.startsWith('__Secure-')) cookie.secure = true;  // flag safe
       if (cookie.name.startsWith('__Host-')) {
@@ -158,7 +158,7 @@ function loadSession(name, session) {
         httpOnly: cookie.httpOnly,
         expirationDate: cookie.expirationDate
       }).then(() => {
-        console.log(`${url} cookie ${cookie.name} restored`);
+        // console.log(`${url} cookie ${cookie.name} restored`);
       }).catch((error) => {
         console.error('Error while opening cookie :', error);
       });
