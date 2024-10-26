@@ -3,7 +3,20 @@
 // by Andaroth 
 // https://github.com/Andaroth/chatgpt-electron
 
-let iaURL = 'https://chat.openai.com';
+const availableAIs = [
+  {
+    label: "ChatGPT",
+    url: 'https://chat.openai.com'
+  },
+  {
+    label: "Copilot",
+    url: 'https://copilot.microsoft.com/'
+  },
+  {
+    label: "MistralAI",
+    url: 'https://chat.mistral.ai/chat'
+  },
+]
 
 const { Menu, app, BrowserWindow, session } = require('electron');
 const prompt = require('electron-prompt');
@@ -18,18 +31,24 @@ const isMac = process.platform === "darwin";
 
 const defaultSettings = {
   theme: "default.css",
-  streamer: false
+  streamer: false,
+  assistant: "ChatGPT",
 };
 
 const userDataPath = app.getPath('userData');
 const configPath = path.join(userDataPath, 'config.json');
 const sessionFile = path.join(userDataPath, 'sessions.json');
 
-function changeIA(url) {
-  console.log('changeIA', url)
-  iaURL = url;
+function changeAssistant(label,url, save = false) {
+  // console.log('changeAssistant', label, url)
   win.webContents.session.clearStorageData({ storages: ['cookies'] });
-  win.loadURL(iaURL);
+  win.loadURL(url);
+  if (save) {
+    let currentSettings = Object.assign({}, userSettings || loadUserPreferences()); // mock
+    const mutateConfig = Object.assign(currentSettings, { assistant: label }); // mutate
+    userSettings = mutateConfig; // assign
+    fs.writeFileSync(configPath, JSON.stringify(userSettings), 'utf-8'); // save
+  }
 }
 
 function loadUserPreferences() {
@@ -100,11 +119,11 @@ function removeSession(name, session) {
 }
 
 function storeSession(name, session) {
-  console.log('storeSession')
+  // console.log('storeSession')
   if (Object.keys(session).length) {
     const mutableSession = getSessions() || {};
     session.cookies.get({}).then((cookies) => {
-      console.log('store, cookies', cookies);
+      // console.log('store, cookies', cookies);
       mutableSession[name] = { cookies };
       const sessionFile = path.join(app.getPath('userData'), 'sessions.json');
       fs.writeFileSync(sessionFile, JSON.stringify(mutableSession));
@@ -113,14 +132,14 @@ function storeSession(name, session) {
 }
 
 function loadSession(name, session) {
-  console.log('loadSession')
+  // console.log('loadSession')
   const existingSessions = getSessions();
   const cookies = existingSessions[name]?.cookies || [];
   const sessionFile = path.join(app.getPath('userData'), 'sessions.json');
   if (fs.existsSync(sessionFile)) {
     session.clearStorageData();
     cookies.forEach((cookie) => {
-      console.log('load, cookie', cookie);
+      // console.log('load, cookie', cookie);
       const url = `https://${cookie.domain.replace(/^\./, '')}`;
       if (cookie.name.startsWith('__Secure-')) cookie.secure = true;  // flag safe
       if (cookie.name.startsWith('__Host-')) {
@@ -139,7 +158,7 @@ function loadSession(name, session) {
         httpOnly: cookie.httpOnly,
         expirationDate: cookie.expirationDate
       }).then(() => {
-        console.log(`${url} cookie ${cookie.name} restored`);
+        // console.log(`${url} cookie ${cookie.name} restored`);
       }).catch((error) => {
         console.error('Error while opening cookie :', error);
       });
@@ -149,131 +168,117 @@ function loadSession(name, session) {
 }
 
 function generateMenu() {
-  {
-    const sessionMenuTemplate = [
-      ...(isMac ? [{
-        label: app.name,
-        submenu: [
-          { role: 'quit' }  // Cmd + Q pour quitter
-        ]
-      }] : []),
-      // Edition Menu
-      ...(isMac ? [{
-        label: 'Edit',
-        submenu: [
-          { role: 'undo' },
-          { role: 'redo' },
-          { type: 'separator' },
-          { role: 'cut' },
-          { role: 'copy' },
-          { role: 'paste' },
-          { role: 'selectAll' }
-        ]
-      }] : []),
+  const sessionMenuTemplate = [
+    ...(isMac ? [{
+      label: app.name,
+      submenu: [
+        { role: 'quit' }  // Cmd + Q pour quitter
+      ]
+    }] : []),
+    // Edition Menu
+    ...(isMac ? [{
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'selectAll' }
+      ]
+    }] : []),
+    {
+      label: "Change AI",
+      submenu: availableAIs.map(({ label, url }) => ({
+        label,
+        type: "checkbox",
+        checked: (userSettings.assistant || defaultSettings.assistant) === label,
+        click() {
+          changeAssistant(label,url,true);
+        }
+      })),
+    },
+    {
+      label: 'Sessions',
+      submenu: [...getSessionsNames().map((name) => ({
+        label: name,
+        click() {
+          loadSession(name, session.defaultSession);
+        }
+      })),
       {
-        label: "Change IA",
-        submenu: [
-          {
-            label: "ChatGPT",
-            click() { 
-              changeIA('https://chat.openai.com')
-            }
-          },
-          {
-            label: "Copilot",
-            click() {
-              changeIA('https://copilot.microsoft.com/')
-            }
-          },
-          {
-            label: "MistralAI",
-            click() { 
-              changeIA('https://chat.mistral.ai/chat')
-            }
-          },
-        ]
+        type: "separator"
       },
       {
-        label: 'Sessions',
-        submenu: [...getSessionsNames().map((name) => ({
-          label: name,
+        label: "Save Current Session",
+        click: async () => {
+          const ask = () => {
+            prompt({
+              title: 'Saving Current Session',
+              label: 'Please chose a name:',
+              inputAttrs: {
+                type: 'text'
+              },
+              type: 'input'
+            }).then((text) => {
+              if (text === "") ask();
+              else if (text !== null) {
+                storeSession(text, session.defaultSession)
+                setTimeout(() => loadSession(text, session.defaultSession))
+              }
+            }).catch(console.error);
+          }
+          ask()
+        }
+      },
+      {
+        label: "Delete A Session",
+        click: async () => {
+          const ask = () => {
+            prompt({
+              title: 'Delete A Session',
+              label: 'Enter the EXACT NAME to remove:',
+              inputAttrs: {
+                type: 'text'
+              },
+              type: 'input'
+            }).then((text) => {
+              if (text === "") ask();
+              else if (text !== null) removeSession(text, session.defaultSession)
+            }).catch(console.error);
+          }
+          ask()
+        }
+      }
+      ]
+    },
+    {
+      label: 'Theme',
+      submenu: fetchThemes().map(str => ({
+        label: str,
+        click() {
+          changeUserTheme(str, true);
+        }
+      })),
+    },
+    {
+      label: 'Options',
+      submenu: [
+        {
+          label: "Streamer mode",
+          type: "checkbox",
+          checked: loadUserPreferences().streamer,
           click() {
-            loadSession(name, session.defaultSession);
-          }
-        })),
-        {
-          type: "separator"
-        },
-        {
-          label: "Save Current Session",
-          click: async () => {
-            const ask = () => {
-              prompt({
-                title: 'Saving Current Session',
-                label: 'Please chose a name:',
-                inputAttrs: {
-                  type: 'text'
-                },
-                type: 'input'
-              }).then((text) => {
-                if (text === "") ask();
-                else if (text !== null) {
-                  storeSession(text, session.defaultSession)
-                  setTimeout(() => loadSession(text, session.defaultSession))
-                }
-              }).catch(console.error);
-            }
-            ask()
-          }
-        },
-        {
-          label: "Delete A Session",
-          click: async () => {
-            const ask = () => {
-              prompt({
-                title: 'Delete A Session',
-                label: 'Enter the EXACT NAME to remove:',
-                inputAttrs: {
-                  type: 'text'
-                },
-                type: 'input'
-              }).then((text) => {
-                if (text === "") ask();
-                else if (text !== null) removeSession(text, session.defaultSession)
-              }).catch(console.error);
-            }
-            ask()
+            toggleStreamer()
           }
         }
-        ]
-      },
-      {
-        label: 'Theme',
-        submenu: fetchThemes().map(str => ({
-          label: str,
-          click() {
-            changeUserTheme(str, true);
-          }
-        })),
-      },
-      {
-        label: 'Options',
-        submenu: [
-          {
-            label: "Streamer mode",
-            type: "checkbox",
-            checked: loadUserPreferences().streamer,
-            click() {
-              toggleStreamer()
-            }
-          }
-        ]
-      }
-    ]
+      ]
+    }
+  ]
 
-    const menu = Menu.buildFromTemplate(sessionMenuTemplate);
-    Menu.setApplicationMenu(menu);
-  }
+  const menu = Menu.buildFromTemplate(sessionMenuTemplate);
+  Menu.setApplicationMenu(menu);
 }
 
 function createWindow() {
@@ -286,7 +291,7 @@ function createWindow() {
       nodeIntegration: true,
       enableRemoteModule: true,
       webviewTag: true,
-      session: require('electron').session.defaultSession
+      session: session.defaultSession
     }
   });
 
@@ -294,12 +299,16 @@ function createWindow() {
     callback({ cancel: false, requestHeaders: details.requestHeaders });
   });
 
-  // win.loadFile(path.join(__dirname, 'index.html'));
-  win.loadURL(iaURL);
+  loadUserPreferences();
   generateMenu();
-
+  const isValidLabel = (label) => availableAIs.find(ai => ai.label === label)
+  const label = isValidLabel(userSettings.assistant)
+    ? userSettings.assistant
+    : defaultSettings.assistant
+  const { url } = availableAIs.find(ai => ai.label === label);
+  changeAssistant(label, url);
+  
   win.webContents.on('did-finish-load', (e) => {
-    loadUserPreferences();
     generateMenu();
 
     changeUserTheme(userSettings.theme);
