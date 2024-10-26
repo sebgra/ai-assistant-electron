@@ -315,12 +315,12 @@ function createWindow() {
         "body nav.flex.h-full div.flex.w-full button div.relative { opacity: 0 !important; }", // name in mobile menu
         "body nav.flex.h-full div.popover.absolute nav div.text-token-text-secondary { display: none; }", // email in mobile menu
         // MistralAI
-        "body div.relative.h-full button.inline-flex.items-center.whitespace-nowrap.text-sm * { color: transparent !important; }",
-        "body div.bg-popover div.flex.flex-col.space-y-1 p { color: transparent !important; }",
-        "body div.bg-popover div.px-2.text-xs.font-semibold { color: transparent !important; }",
+        "body div.relative.h-full button.inline-flex.items-center.whitespace-nowrap.text-sm * { color: transparent !important; }", // account
+        "body div.bg-popover div.flex.flex-col.space-y-1 p { color: transparent !important; }", // mail
+        "body div.bg-popover div.px-2.text-xs.font-semibold { color: transparent !important; }", // name
         // Copilot
-        "body div.absolute.end-6.top-6 button img { opacity: 0 !important; }",
-        "body div.absolute.end-6.top-6 button p { color: transparent !important; }"
+        "body div.absolute.end-6.top-6 button img { opacity: 0 !important; }", // avatar
+        "body div.absolute.end-6.top-6 button p { color: transparent !important; }" // name & mail
       ];
       for (let cssRule of hideCssRules) win.webContents.insertCSS(cssRule);
     }
