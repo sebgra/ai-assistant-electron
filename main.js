@@ -39,9 +39,9 @@ const userDataPath = app.getPath('userData');
 const configPath = path.join(userDataPath, 'config.json');
 const sessionFile = path.join(userDataPath, 'sessions.json');
 
-function changeAssistant(label,url, save = false) {
-  // console.log('changeAssistant', label, url)
-  win.webContents.session.clearStorageData({ storages: ['cookies'] });
+function changeAssistant(label,url, save = false, killCookies = true) {
+  // kill cookies on AI change to prevent cookie errors:
+  if (killCookies) win.webContents.session.clearStorageData({ storages: ['cookies'] });
   win.loadURL(url);
   if (save) {
     let currentSettings = Object.assign({}, userSettings || loadUserPreferences()); // mock
@@ -306,7 +306,7 @@ function createWindow() {
     ? userSettings.assistant
     : defaultSettings.assistant
   const { url } = availableAIs.find(ai => ai.label === label);
-  changeAssistant(label, url);
+  changeAssistant(label, url, false, false);
   
   win.webContents.on('did-finish-load', (e) => {
     generateMenu();
