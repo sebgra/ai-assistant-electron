@@ -294,5 +294,4 @@ app.whenReady().then(createWindow);
 app.on('activate', () => { if (win === null) createWindow() })
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
-  globalShortcut.unregister('CommandOrControl+F')
 })
