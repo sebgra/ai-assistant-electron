@@ -180,6 +180,12 @@ function generateMenu() {
             }
           },
           {
+            label: "Copilot",
+            click() {
+              changeIA('https://copilot.microsoft.com/')
+            }
+          },
+          {
             label: "MistralAI",
             click() { 
               changeIA('https://chat.mistral.ai/chat')
@@ -312,6 +318,9 @@ function createWindow() {
         "body div.relative.h-full button.inline-flex.items-center.whitespace-nowrap.text-sm * { color: transparent !important; }",
         "body div.bg-popover div.flex.flex-col.space-y-1 p { color: transparent !important; }",
         "body div.bg-popover div.px-2.text-xs.font-semibold { color: transparent !important; }",
+        // Copilot
+        "body div.absolute.end-6.top-6 button img { opacity: 0 !important; }",
+        "body div.absolute.end-6.top-6 button p { color: transparent !important; }"
       ];
       for (let cssRule of hideCssRules) win.webContents.insertCSS(cssRule);
     }
