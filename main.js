@@ -283,8 +283,16 @@ function createWindow() {
       for (let cssRule of hideCssRules) win.webContents.insertCSS(cssRule);
     }
   });
+
+  win.on('closed', () => { win = null })
 }
 
 app.commandLine.appendSwitch('disable-software-rasterizer');
 
 app.whenReady().then(createWindow);
+
+app.on('activate', () => { if (win === null) createWindow() })
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit()
+  globalShortcut.unregister('CommandOrControl+F')
+})
