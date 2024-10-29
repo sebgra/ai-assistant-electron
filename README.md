@@ -4,9 +4,9 @@
 
 ## DISCLAIMER
 
-This projects is MAINTAINED but is migrating to "Vidya" GUI.
+This project is MAINTAINED but is migrating to premium "Vidya" GUI which will be close-sourced.
 
-If you want to follow and support the projects, please [join our Discord](https://discord.gg/andapirate). 
+If you want to follow and support the project, please [join our Discord](https://discord.gg/andapirate). 
 
 ## Features
 
