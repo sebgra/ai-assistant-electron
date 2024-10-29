@@ -4,7 +4,7 @@
 
 ## DISCLAIMER
 
-This project is MAINTAINED but is migrating to premium "Vidya" GUI which will be close-sourced.
+This project is MAINTAINED but is migrating to premium "[Vidyā](https://vidya.chat)" GUI which will be close-sourced.
 
 If you want to follow and support the project, please [join our Discord](https://discord.gg/andapirate) (it's French). 
 
