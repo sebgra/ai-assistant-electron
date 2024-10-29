@@ -2,6 +2,12 @@
 
 ![sample](sample.png)
 
+## DISCLAIMER
+
+This projects is MAINTAINED but is migrating to "Vidya" GUI.
+
+If you want to follow and support the projects, please [join our Discord](https://discord.gg/andapirate). 
+
 ## Features
 
 1. #### Session manager to change account easily,
@@ -85,8 +91,8 @@ It works with a `package` output and I did NOT tested it with deb and rpm.
 
 ## Credits
 
-This was made by [Axel Andaroth (aka Pirate)](https://anda.ninja) for personal use with Debian 12 XFCE.
+This was made by [Axel Andaroth (aka Anda Pirate)](https://anda.ninja) for personal use with Debian 12 XFCE.
 
-Source is open because sharing is caring but I don't plan to spend time to maintain nor to update this project. 
+Source is open because sharing is caring. 
 
 Thanks for your support!
